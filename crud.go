@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"reflect"
 )
 
 func main() {
@@ -18,16 +19,30 @@ func main() {
 	//	log.Fatal(err)
 	//}
 
+
 	var listaRecetas []Receta
-	listaRecetas, err2 := RecetaListar("")
-	if err2 != nil {
-		log.Fatal(err2)
+	listaRecetas, err := ListarRecetas("")
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	fmt.Println("\n+++++ RECETAS +++++\n")
-
-
 	for i := 0; i < len(listaRecetas); i++ {
 		fmt.Println(listaRecetas[i])
 	}
+
+
+
+	//var recetaSeleccionada Receta
+	recetaSeleccionada, err := getReceta2(1)
+	fmt.Println(reflect.TypeOf(err))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("\n+++++ RECETA SELECCIONADA +++++\n")
+
+	fmt.Println(recetaSeleccionada)
+
+
 }

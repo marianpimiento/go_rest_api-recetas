@@ -40,7 +40,7 @@ func RecetaCrear(r Receta) error {
 }
 
 
-func RecetaListar(txtBusqueda string) ([]Receta, error) {
+func ListarRecetas(txtBusqueda string) ([]Receta, error) {
 
 	var recetas []Receta
 
@@ -90,4 +90,36 @@ func RecetaListar(txtBusqueda string) ([]Receta, error) {
 	//fmt.Println(recetas)
 	return recetas, nil
 
+}
+
+func getReceta(idBusqueda int) (Receta, error) {
+
+	res := Receta{}
+
+	query := `SELECT * FROM recetas WHERE idrecetas = $1`
+
+	db := getConnection()
+	defer db.Close()
+
+	stmt, err := db.Prepare(query)
+	if err != nil {
+		return res, err
+	}
+	defer stmt.Close()
+
+	var id, porciones int
+	var nombre, tipo, preparacion string
+
+	err = db.QueryRow(query, idBusqueda).Scan(&id, &nombre, &tipo, &preparacion, &porciones)
+	if err == nil {
+		res = Receta{
+			idRecetas: id,
+			nombre: nombre,
+			tipoPlato: tipo,
+			preparacion: preparacion,
+			porciones: porciones,
+		}
+	}
+
+	return res, err
 }
