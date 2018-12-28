@@ -19,11 +19,15 @@ func main() {
 	//}
 
 	var listaRecetas []Receta
-	listaRecetas, err2 := RecetaListar("tor")
+	listaRecetas, err2 := RecetaListar("")
 	if err2 != nil {
 		log.Fatal(err2)
 	}
 
-	fmt.Println("\n\nCreado exitosamente")
-	fmt.Println(listaRecetas)
+	fmt.Println("\n+++++ RECETAS +++++\n")
+
+
+	for i := 0; i < len(listaRecetas); i++ {
+		fmt.Println(listaRecetas[i])
+	}
 }

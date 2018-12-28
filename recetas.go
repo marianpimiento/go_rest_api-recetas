@@ -42,12 +42,8 @@ func RecetaCrear(r Receta) error {
 
 func RecetaListar(txtBusqueda string) ([]Receta, error) {
 
-	fmt.Println("Texto busqueda")
-	fmt.Println(txtBusqueda)
-	txtBusqueda="%"+txtBusqueda+"%"
-	fmt.Println(txtBusqueda)
-
 	var recetas []Receta
+
 	query := `SELECT * FROM recetas WHERE LOWER(nombre) like LOWER($1)`
 
 	db := getConnection()
@@ -59,32 +55,15 @@ func RecetaListar(txtBusqueda string) ([]Receta, error) {
 	}
 	defer stmt.Close()
 
-	//rowsRecetas, err := db.Query(query)
-	//rowsRecetas, err := db.Query(query, txtBusqueda)
+	txtBusqueda="%"+txtBusqueda+"%"
 	rowsRecetas, err := db.Query(query, txtBusqueda)
-
-
-	//var numero int
-	//
-	//numero =3
-	//
-	//fmt.Println("++++Tipos++++")
-	//fmt.Println(reflect.TypeOf(numero))
-	//fmt.Println(reflect.TypeOf(rowsRecetas))
-	//
-	//
-	////if txtBusqueda == "" {
-	////	rowsRecetas, err = db.Query(query)
-	////} else {
-	////	rowsRecetas, err = db.Query(query, txtBusqueda)
-	////}
 
 	if err != nil {
 		return nil, err
 	}
 	defer rowsRecetas.Close()
 
-	fmt.Println("\n+++++ RECETAS +++++\n")
+	//fmt.Println("\n+++++ RECETAS +++++\n")
 
 	for rowsRecetas.Next() {
 		var id, porciones int
@@ -106,9 +85,7 @@ func RecetaListar(txtBusqueda string) ([]Receta, error) {
 		}
 
 		recetas = append(recetas, recetaActual)
-
 		//fmt.Println(recetaActual)
-
 	}
 	//fmt.Println(recetas)
 	return recetas, nil
