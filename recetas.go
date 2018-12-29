@@ -7,10 +7,10 @@ import (
 // Estructura de la tabla RECETAS
 type Receta struct {
 	idRecetas int `json:"idrecetas,omitempty"`
-	nombre string `json:"nombre,omitempty"`
-	tipoPlato string `json:"tipoplato,omitempty"`
-	preparacion string `json:"preparacion,omitempty"`
-	porciones int `json:"porciones,omitempty"`
+	nombre string `json:"nombre"`
+	tipoPlato string `json:"tipoplato"`
+	preparacion string `json:"preparacion"`
+	porciones int `json:"porciones"`
 }
 
 
@@ -171,7 +171,7 @@ func updateReceta(r Receta) (int, error) {
 }
 
 
-// Funcion deleteReceta:
+// Funcion deleteReceta: Eliminar una receta
 // Input:
 // 		- recetaID int: Id de la receta a eliminar
 // Output:
