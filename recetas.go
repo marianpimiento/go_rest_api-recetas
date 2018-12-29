@@ -108,13 +108,13 @@ func allRecetas(txtBusqueda string) ([]Receta, error) {
 }
 
 
-// Funcion insertReceta: Crea una nueva receta
+// Funcion createReceta: Crea una nueva receta
 // Input:
 // 		- r Receta: Elemento tipo Receta con los datos para la creacion
 // Output:
 // 		- recetaID int: Id de la nueva receta creada si no hubo error, de lo contrario es cero
 // 		- err error: Error generado, si aplica
-func insertReceta(r Receta) (int, error) {
+func createReceta(r Receta) (int, error) {
 
 	var recetaID int
 
