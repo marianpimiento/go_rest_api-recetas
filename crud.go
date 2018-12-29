@@ -8,20 +8,20 @@ import (
 
 func main() {
 	//r := Receta{
-	//	nombre: "Torta de chocolate",
+	//	nombre: "Pie de Manzana",
 	//	tipoPlato: "Postre",
 	//	preparacion: "Mezclar todos los ingredientes y hornear",
-	//	porciones: 12,
+	//	porciones: 15,
 	//}
-
+	//
 	//err := RecetaCrear(r)
 	//if err != nil {
 	//	log.Fatal(err)
 	//}
 
 
-	var listaRecetas []Receta
-	listaRecetas, err := ListarRecetas("")
+	//var listaRecetas []Receta
+	listaRecetas, err := allRecetas("")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -32,9 +32,8 @@ func main() {
 	}
 
 
-
 	//var recetaSeleccionada Receta
-	recetaSeleccionada, err := getReceta2(1)
+	recetaSeleccionada, err := getReceta(412783567569125377)
 	fmt.Println(reflect.TypeOf(err))
 	if err != nil {
 		log.Fatal(err)

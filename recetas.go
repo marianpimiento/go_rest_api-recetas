@@ -40,58 +40,6 @@ func RecetaCrear(r Receta) error {
 }
 
 
-func ListarRecetas(txtBusqueda string) ([]Receta, error) {
-
-	var recetas []Receta
-
-	query := `SELECT * FROM recetas WHERE LOWER(nombre) like LOWER($1)`
-
-	db := getConnection()
-	defer db.Close()
-
-	stmt, err := db.Prepare(query)
-	if err != nil {
-		return nil, err
-	}
-	defer stmt.Close()
-
-	txtBusqueda="%"+txtBusqueda+"%"
-	rowsRecetas, err := db.Query(query, txtBusqueda)
-
-	if err != nil {
-		return nil, err
-	}
-	defer rowsRecetas.Close()
-
-	//fmt.Println("\n+++++ RECETAS +++++\n")
-
-	for rowsRecetas.Next() {
-		var id, porciones int
-		var nombre, tipo, preparacion string
-		if err := rowsRecetas.Scan(&id, &nombre, &tipo, &preparacion, &porciones); err != nil {
-			return nil, err
-		}
-		//fmt.Printf("Receta: %s\n", nombre)
-		//fmt.Printf("Tipo: %s\n", tipo)
-		//fmt.Printf("Porciones: %d\n", porciones)
-		//fmt.Printf("Preparacion:\n %s\n\n", preparacion)
-
-		recetaActual := Receta{
-			idRecetas: id,
-			nombre: nombre,
-			tipoPlato: tipo,
-			preparacion: preparacion,
-			porciones: porciones,
-		}
-
-		recetas = append(recetas, recetaActual)
-		//fmt.Println(recetaActual)
-	}
-	//fmt.Println(recetas)
-	return recetas, nil
-
-}
-
 func getReceta(idBusqueda int) (Receta, error) {
 
 	res := Receta{}
@@ -122,4 +70,53 @@ func getReceta(idBusqueda int) (Receta, error) {
 	}
 
 	return res, err
+}
+
+
+func allRecetas(txtBusqueda string) ([]Receta, error) {
+
+	recetas := []Receta{}
+
+	query := `SELECT * FROM recetas WHERE LOWER(nombre) like LOWER($1) ORDER BY nombre;`
+
+	db := getConnection()
+	defer db.Close()
+
+	stmt, err := db.Prepare(query)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	txtBusqueda="%"+txtBusqueda+"%"
+	rows, err := db.Query(query, txtBusqueda)
+	defer rows.Close()
+
+
+	if err == nil {
+		for rows.Next() {
+			var id, porciones int
+			var nombre, tipo, preparacion string
+
+			err = rows.Scan(&id, &nombre, &tipo, &preparacion, &porciones)
+			if err == nil {
+				recetaActual := Receta{
+					idRecetas: id,
+					nombre: nombre,
+					tipoPlato: tipo,
+					preparacion: preparacion,
+					porciones: porciones,
+				}
+
+				recetas = append(recetas, recetaActual)
+
+			} else {
+				return recetas, err
+			}
+		}
+	} else {
+		return recetas, err
+	}
+
+	return recetas, err
 }
