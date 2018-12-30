@@ -5,30 +5,45 @@ import (
 )
 
 // STRUCT DEFINIDO EN RECETAS.GO
-//type Receta struct {
-//	idRecetas int `json:"idrecetas,omitempty"`
-//	nombre string `json:"nombre"`
-//	tipoPlato string `json:"tipoplato"`
-//	preparacion string `json:"preparacion"`
-//	porciones int `json:"porciones"`
-//}
+type Receta struct {
+	IdRecetas int `json:"idrecetas,omitempty"`
+	Nombre string `json:"nombre"`
+	TipoPlato string `json:"tipoplato"`
+	Preparacion string `json:"preparacion"`
+	Porciones int `json:"porciones"`
+}
 
 
 func (r *Receta) getRecetaModel(db *sql.DB) error {
+	//fmt.Println("getRecetaModel")
+	//
+	//err := db.QueryRow("SELECT * FROM recetas WHERE idrecetas = $1",
+	//	r.IdRecetas).Scan(&r.IdRecetas, &r.Nombre, &r.TipoPlato, &r.Preparacion, &r.Porciones)
+	//if err == nil {
+	//	fmt.Println("Error")
+	//}
+	//
+	//fmt.Println("Despues metodo largo")
+	//
+	//fmt.Println(*r)
+	//fmt.Println(reflect.TypeOf(r))
+	//fmt.Println(reflect.TypeOf(*r))
+
+
 	return db.QueryRow("SELECT * FROM recetas WHERE idrecetas = $1",
-		r.idRecetas).Scan(&r.nombre, &r.tipoPlato, &r.preparacion, &r.porciones)
+		r.IdRecetas).Scan(&r.IdRecetas, &r.Nombre, &r.TipoPlato, &r.Preparacion, &r.Porciones)
 }
 
 func (r *Receta) updateRecetaModel(db *sql.DB) error {
 	_, err :=
 		db.Exec("UPDATE recetas set nombre=$1, tipoplato=$2, preparacion=$3, porciones=$4 where idrecetas=$5",
-			r.nombre, r.tipoPlato, r.preparacion, r.porciones, r.idRecetas)
+			r.Nombre, r.TipoPlato, r.Preparacion, r.Porciones, r.IdRecetas)
 
 	return err
 }
 
 func (r *Receta) deleteRecetaModel(db *sql.DB) error {
-	_, err := db.Exec("DELETE FROM recetas WHERE idrecetas=$1", r.idRecetas)
+	_, err := db.Exec("DELETE FROM recetas WHERE idrecetas=$1", r.IdRecetas)
 
 	return err
 }
@@ -36,7 +51,7 @@ func (r *Receta) deleteRecetaModel(db *sql.DB) error {
 func (r *Receta) createRecetaModel(db *sql.DB) error {
 	err := db.QueryRow(
 		"INSERT INTO recetas (nombre, tipoplato, preparacion, porciones)	VALUES ($1, $2, $3, $4) RETURNING idrecetas",
-		r.nombre, r.tipoPlato, r.preparacion, r.porciones).Scan(&r.idRecetas)
+		r.Nombre, r.TipoPlato, r.Preparacion, r.Porciones).Scan(&r.IdRecetas)
 
 	if err != nil {
 		return err
@@ -60,7 +75,7 @@ func getRecetasModel(db *sql.DB, start, count int, txtBusqueda string) ([]Receta
 
 	for rows.Next() {
 		var r Receta
-		if err := rows.Scan(&r.idRecetas, &r.nombre, &r.tipoPlato, &r.preparacion, &r.porciones); err != nil {
+		if err := rows.Scan(&r.IdRecetas, &r.Nombre, &r.TipoPlato, &r.Preparacion, &r.Porciones); err != nil {
 			return nil, err
 		}
 		recetas = append(recetas, r)

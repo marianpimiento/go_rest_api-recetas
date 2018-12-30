@@ -38,7 +38,6 @@ func (a *App) Initialize(user, dbname string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	a.Router = mux.NewRouter()
 	a.initializeRoutes()
 }
@@ -46,7 +45,7 @@ func (a *App) Initialize(user, dbname string) {
 func (a *App) Run(addr string) {
 	log.Fatal(http.ListenAndServe(addr, a.Router))
 
-	//defer a.DB.Close()
+	defer a.DB.Close()
 }
 
 
@@ -61,16 +60,17 @@ func (a *App) initializeRoutes() {
 
 //-----------------------
 func respondWithError(w http.ResponseWriter, code int, message string) {
-	respondWithJSON(w, code, map[string]string{"Error": message})
+	respondWithJSON(w, code, map[string]string{"error": message})
 }
 
 func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	response, _ := json.Marshal(payload)
-
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 	w.Write(response)
 }
+
+
 
 
 //--------------------- Handlers
@@ -82,8 +82,9 @@ func (a *App) getReceta(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rec := Receta{idRecetas: id}
+	rec := Receta{IdRecetas: id}
 	if err := rec.getRecetaModel(a.DB); err != nil {
+
 		switch err {
 		case sql.ErrNoRows:
 			respondWithError(w, http.StatusNotFound, "Receta no encontrada")
@@ -150,7 +151,7 @@ func (a *App) updateReceta(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-	rec.idRecetas = id
+	rec.IdRecetas = id
 
 	if err := rec.updateRecetaModel(a.DB); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
@@ -168,7 +169,7 @@ func (a *App) deleteReceta(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rec := Receta{idRecetas: id}
+	rec := Receta{IdRecetas: id}
 	if err := rec.deleteRecetaModel(a.DB); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
