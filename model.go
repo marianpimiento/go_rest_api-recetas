@@ -39,21 +39,19 @@ func (r *Receta) getReceta(db *sql.DB) error {
 // 		- recetas []Receta: Lista de elementos tipo Receta
 // 		- error: Error generado, si aplica
 func getRecetas(db *sql.DB, start, count int, txtBusqueda string) ([]Receta, error) {
-	rows, err := db.Query(
-		"SELECT * FROM recetas WHERE LOWER(nombre) like LOWER($1) ORDER BY nombre LIMIT $2 OFFSET $3",
-		txtBusqueda, count, start)
 
+	txtBusqueda="%"+txtBusqueda+"%"
+	rows, err := db.Query("SELECT * FROM recetas WHERE LOWER(nombre) like LOWER($1) ORDER BY nombre LIMIT $2 OFFSET $3",
+		txtBusqueda, count, start)
 	if err != nil {
 		return nil, err
 	}
-
 	defer rows.Close()
 
 	recetas := []Receta{}
-
 	for rows.Next() {
 		var r Receta
-		if err := rows.Scan(&r.IdRecetas, &r.Nombre, &r.TipoPlato, &r.Preparacion, &r.Porciones); err != nil {
+		if err := rows.Scan(&r.IdRecetas, &r.Nombre, &r.TipoPlato, &r.Preparacion, &r.Porciones, &r.Ingredientes); err != nil {
 			return nil, err
 		}
 		recetas = append(recetas, r)

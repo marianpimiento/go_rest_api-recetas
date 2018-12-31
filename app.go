@@ -122,7 +122,7 @@ func (a *App) getRecetas(w http.ResponseWriter, r *http.Request) {
 	start, _ := strconv.Atoi(r.FormValue("start"))
 	txtBusqueda := r.FormValue("txtBusqueda")
 
-	if count > 10 || count < 1 {
+	if count < 1 {
 		count = 10
 	}
 	if start < 0 {
