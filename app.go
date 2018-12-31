@@ -17,20 +17,7 @@ type App struct {
 	DB     *sql.DB
 }
 
-func (a *App) Initialize(user, dbname string) {
-	//connectionString :=
-	//	fmt.Sprintf("user=%s dbname=%s", user, dbname)
-	//
-	//var err error
-	//a.DB, err = sql.Open("postgres", connectionString)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//
-	//a.Router = mux.NewRouter()
-	//a.initializeRoutes()
-
-
+func (a *App) Initialize() {
 	dsn := "postgresql://maxroach@localhost:26257/recetas?sslmode=disable"
 
 	var err error
@@ -69,7 +56,6 @@ func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	w.WriteHeader(code)
 	w.Write(response)
 }
-
 
 
 
