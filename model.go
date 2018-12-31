@@ -15,6 +15,8 @@ type Receta struct {
 }
 
 
+// ---------- CRUD PARA RECETAS ----------
+
 // Funcion getReceta: Obtiene los datos de una Receta por medio de su id
 // Receiver:
 // 		- r *Receta: Elemento tipo Receta, ingresa con el id y sale con todos los campos de la receta
@@ -22,7 +24,7 @@ type Receta struct {
 // 		- db *sql.DB: Elemento de base de datos de la aplicacion
 // Output:
 // 		- error: Error generado, si aplica
-func (r *Receta) getRecetaModel(db *sql.DB) error {
+func (r *Receta) getReceta(db *sql.DB) error {
 	return db.QueryRow("SELECT idrecetas, nombre, tipoplato, preparacion, porciones, ingredientes FROM recetas WHERE idrecetas = $1",
 		r.IdRecetas).Scan(&r.IdRecetas, &r.Nombre, &r.TipoPlato, &r.Preparacion, &r.Porciones, &r.Ingredientes)
 }
@@ -36,7 +38,7 @@ func (r *Receta) getRecetaModel(db *sql.DB) error {
 // Output:
 // 		- recetas []Receta: Lista de elementos tipo Receta
 // 		- error: Error generado, si aplica
-func getRecetasModel(db *sql.DB, start, count int, txtBusqueda string) ([]Receta, error) {
+func getRecetas(db *sql.DB, start, count int, txtBusqueda string) ([]Receta, error) {
 	rows, err := db.Query(
 		"SELECT * FROM recetas WHERE LOWER(nombre) like LOWER($1) ORDER BY nombre LIMIT $2 OFFSET $3",
 		txtBusqueda, count, start)
@@ -67,7 +69,7 @@ func getRecetasModel(db *sql.DB, start, count int, txtBusqueda string) ([]Receta
 // 		- db *sql.DB: Elemento de base de datos de la aplicacion
 // Output:
 // 		- error: Error generado, si aplica
-func (r *Receta) createRecetaModel(db *sql.DB) error {
+func (r *Receta) createReceta(db *sql.DB) error {
 	err := db.QueryRow("INSERT INTO recetas (nombre, tipoplato, preparacion, porciones, ingredientes)	VALUES ($1, $2, $3, $4, $5) RETURNING idrecetas",
 		r.Nombre, r.TipoPlato, r.Preparacion, r.Porciones, r.Ingredientes).Scan(&r.IdRecetas)
 
@@ -85,7 +87,7 @@ func (r *Receta) createRecetaModel(db *sql.DB) error {
 // 		- db *sql.DB: Elemento de base de datos de la aplicacion
 // Output:
 // 		- error: Error generado, si aplica
-func (r *Receta) updateRecetaModel(db *sql.DB) error {
+func (r *Receta) updateReceta(db *sql.DB) error {
 	_, err := db.Exec("UPDATE recetas set nombre=$1, tipoplato=$2, preparacion=$3, porciones=$4, ingredientes=$5 where idrecetas=$6",
 			r.Nombre, r.TipoPlato, r.Preparacion, r.Porciones, r.Ingredientes ,r.IdRecetas)
 
@@ -99,7 +101,7 @@ func (r *Receta) updateRecetaModel(db *sql.DB) error {
 // 		- db *sql.DB: Elemento de base de datos de la aplicacion
 // Output:
 // 		- error: Error generado, si aplica
-func (r *Receta) deleteRecetaModel(db *sql.DB) error {
+func (r *Receta) deleteReceta(db *sql.DB) error {
 	_, err := db.Exec("DELETE FROM recetas WHERE idrecetas=$1", r.IdRecetas)
 
 	return err
