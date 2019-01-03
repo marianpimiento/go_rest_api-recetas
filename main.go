@@ -6,5 +6,5 @@ func main() {
 
 	a.Initialize()
 
-	a.Run(":8080")
+	a.Run(":3000")
 }
