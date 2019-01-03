@@ -36,7 +36,7 @@ func (a *App) Initialize() {
 // Receiver:
 // 		- a *App: Elemento tipo App
 // Input:
-// 		- addr string: Direccion, para este caso el puerto :8080
+// 		- addr string: Direccion, para este caso el puerto
 func (a *App) Run(addr string) {
 	log.Fatal(http.ListenAndServe(addr, a.Router))
 
