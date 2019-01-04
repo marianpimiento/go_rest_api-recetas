@@ -8,7 +8,7 @@
 - Actualizar: PUT en /receta/{id}
 - Eliminar: DELETE en /receta/{id}
 - Obtener una: GET en /receta/{id}
-- Obtener todas: GET en /recetas con parámetros txtBusqueda (Texto para buscar por nombre)
+- Obtener todas: GET en /recetas con parámetro 'txtBusqueda' (Texto para buscar por nombre)
 
 ## Estructura de datos
 
