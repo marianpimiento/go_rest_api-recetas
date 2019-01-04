@@ -1,6 +1,6 @@
 # Recetas (Golang rest api)
 
-> Rest api desarrollada en Golang para  realizar el CRUD a datos de recetas de cocina y buscar por su nombre. Implementada utilizando con Gorilla Mux y base de datos Cockroachdb.
+> Rest api desarrollada en Golang para  realizar el CRUD a datos de recetas de cocina y buscar por su nombre. Implementada utilizando Gorilla Mux y base de datos Cockroachdb.
 
 ## Funciones CRUD para Recetas
 
