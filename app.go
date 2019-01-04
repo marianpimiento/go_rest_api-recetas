@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	"log"
 	"net/http"
 	"strconv"
@@ -32,13 +33,18 @@ func (a *App) Initialize() {
 	a.initializeRoutes()
 }
 
-// Funcion Run: Inicia el servidor HTTP
+// Funcion Run: Inicia el servidor HTTP y habilita CORS para ejecucion local
 // Receiver:
 // 		- a *App: Elemento tipo App
 // Input:
 // 		- addr string: Direccion, para este caso el puerto
 func (a *App) Run(addr string) {
-	log.Fatal(http.ListenAndServe(addr, a.Router))
+
+	corsConfig := cors.New(cors.Options{
+		AllowedHeaders: []string{"Origin", "Accept", "Content-Type", "X-Requested-With", "Authorization"},
+		AllowedMethods: []string{"POST", "PUT", "GET", "PATCH", "OPTIONS", "HEAD", "DELETE"},
+	})
+	log.Fatal(http.ListenAndServe(addr, corsConfig.Handler(a.Router)))
 
 	defer a.DB.Close()
 }
@@ -78,12 +84,6 @@ func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	w.Write(response)
 }
 
-// Funcion enableCors: Habilita CORS con proposito de pruebas locales
-// Input:
-// 		- w http.ResponseWriter
-func enableCors(w *http.ResponseWriter) {
-	(*w).Header().Set("Access-Control-Allow-Origin", "*")
-}
 
 // ---------- HANDLERS ----------
 
@@ -94,7 +94,6 @@ func enableCors(w *http.ResponseWriter) {
 // 		- w http.ResponseWriter
 // 		- r *http.Request
 func (a *App) getReceta(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -124,19 +123,9 @@ func (a *App) getReceta(w http.ResponseWriter, r *http.Request) {
 // 		- w http.ResponseWriter
 // 		- r *http.Request
 func (a *App) getRecetas(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
-	count, _ := strconv.Atoi(r.FormValue("count"))
-	start, _ := strconv.Atoi(r.FormValue("start"))
 	txtBusqueda := r.FormValue("txtBusqueda")
 
-	if count < 1 {
-		count = 10
-	}
-	if start < 0 {
-		start = 0
-	}
-
-	recetas, err := getRecetas(a.DB, start, count, txtBusqueda)
+	recetas, err := getRecetas(a.DB, txtBusqueda)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -152,10 +141,10 @@ func (a *App) getRecetas(w http.ResponseWriter, r *http.Request) {
 // 		- w http.ResponseWriter
 // 		- r *http.Request
 func (a *App) createReceta(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
 	var rec Receta
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&rec); err != nil {
+	err := decoder.Decode(&rec)
+	if err != nil {
 		respondWithError(w, http.StatusBadRequest, "Request de la carga util no valido")
 		return
 	}
@@ -176,7 +165,6 @@ func (a *App) createReceta(w http.ResponseWriter, r *http.Request) {
 // 		- w http.ResponseWriter
 // 		- r *http.Request
 func (a *App) updateReceta(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -186,29 +174,34 @@ func (a *App) updateReceta(w http.ResponseWriter, r *http.Request) {
 
 	var rec Receta
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&rec); err != nil {
+	err = decoder.Decode(&rec)
+	if err != nil{
 		respondWithError(w, http.StatusBadRequest, "Request de la carga util no valido")
 		return
 	}
 	defer r.Body.Close()
 	rec.IdRecetas = id
 
-	if err := rec.updateReceta(a.DB); err != nil {
+	rowsAffected, err := rec.updateReceta(a.DB)
+	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	if rowsAffected == 0 {
+		respondWithError(w, http.StatusInternalServerError, "No hubo filas afectadas por la query")
 		return
 	}
 
 	respondWithJSON(w, http.StatusOK, rec)
 }
 
-// Funcion getReceta: Handler para eliminar una receta
+// Funcion deleteReceta: Handler para eliminar una receta
 // Receiver:
 // 		- a *App: Elemento tipo App
 // Input:
 // 		- w http.ResponseWriter
 // 		- r *http.Request
 func (a *App) deleteReceta(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -217,8 +210,13 @@ func (a *App) deleteReceta(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rec := Receta{IdRecetas: id}
-	if err := rec.deleteReceta(a.DB); err != nil {
+	rowsAffected, err := rec.deleteReceta(a.DB)
+	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	if rowsAffected == 0 {
+		respondWithError(w, http.StatusInternalServerError, "No hubo filas afectadas por la query")
 		return
 	}
 

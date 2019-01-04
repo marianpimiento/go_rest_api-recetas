@@ -32,17 +32,14 @@ func (r *Receta) getReceta(db *sql.DB) error {
 // Funcion getRecetas: Obtiene los datos de las Recetas filtradas con base en el nombre, si el texto de busqueda es vacío regresa todas las recetas
 // Input:
 // 		- db *sql.DB: Elemento de base de datos de la aplicacion
-// 		- start int: Posicion inicial del elemento a mostrar en la consulta, para paginacion
-// 		- count int: Cantidad de elementos a mostrar por consulta, para paginacion
 // 		- txtBusqueda string: Texto para buscar por nombre la receta
 // Output:
 // 		- recetas []Receta: Lista de elementos tipo Receta
 // 		- error: Error generado, si aplica
-func getRecetas(db *sql.DB, start, count int, txtBusqueda string) ([]Receta, error) {
-
+func getRecetas(db *sql.DB, txtBusqueda string) ([]Receta, error) {
 	txtBusqueda="%"+txtBusqueda+"%"
-	rows, err := db.Query("SELECT * FROM recetas WHERE LOWER(nombre) like LOWER($1) ORDER BY nombre LIMIT $2 OFFSET $3",
-		txtBusqueda, count, start)
+	rows, err := db.Query("SELECT * FROM recetas WHERE LOWER(nombre) like LOWER($1) ORDER BY LOWER(nombre)",
+		txtBusqueda)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +67,6 @@ func getRecetas(db *sql.DB, start, count int, txtBusqueda string) ([]Receta, err
 func (r *Receta) createReceta(db *sql.DB) error {
 	err := db.QueryRow("INSERT INTO recetas (nombre, tipoplato, preparacion, porciones, ingredientes)	VALUES ($1, $2, $3, $4, $5) RETURNING idrecetas",
 		r.Nombre, r.TipoPlato, r.Preparacion, r.Porciones, r.Ingredientes).Scan(&r.IdRecetas)
-
 	if err != nil {
 		return err
 	}
@@ -85,11 +81,19 @@ func (r *Receta) createReceta(db *sql.DB) error {
 // 		- db *sql.DB: Elemento de base de datos de la aplicacion
 // Output:
 // 		- error: Error generado, si aplica
-func (r *Receta) updateReceta(db *sql.DB) error {
-	_, err := db.Exec("UPDATE recetas set nombre=$1, tipoplato=$2, preparacion=$3, porciones=$4, ingredientes=$5 where idrecetas=$6",
+func (r *Receta) updateReceta(db *sql.DB) (int64, error) {
+	res, err := db.Exec("UPDATE recetas set nombre=$1, tipoplato=$2, preparacion=$3, porciones=$4, ingredientes=$5 where idrecetas=$6",
 			r.Nombre, r.TipoPlato, r.Preparacion, r.Porciones, r.Ingredientes ,r.IdRecetas)
+	if err != nil {
+		return 0, err
+	}
 
-	return err
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+
+	return rowsAffected, err
 }
 
 // Funcion deleteReceta: Elimina una receta
@@ -99,10 +103,18 @@ func (r *Receta) updateReceta(db *sql.DB) error {
 // 		- db *sql.DB: Elemento de base de datos de la aplicacion
 // Output:
 // 		- error: Error generado, si aplica
-func (r *Receta) deleteReceta(db *sql.DB) error {
-	_, err := db.Exec("DELETE FROM recetas WHERE idrecetas=$1", r.IdRecetas)
+func (r *Receta) deleteReceta(db *sql.DB) (int64, error) {
+	res, err := db.Exec("DELETE FROM recetas WHERE idrecetas=$1", r.IdRecetas)
+	if err != nil {
+		return 0, err
+	}
 
-	return err
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+
+	return rowsAffected, err
 }
 
 
